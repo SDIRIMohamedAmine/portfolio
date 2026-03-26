@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+  }
+
+  body {
+    background-color: #07070e;
+    color: #f0eff8;
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: rgba(232, 176, 75, 0.25);
+    color: #f5c96a;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #07070e; }
+  ::-webkit-scrollbar-thumb { background: #2e2c45; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #e8b04b; }
+}
+
+@layer components {
+  .section-container {
+    @apply max-w-6xl mx-auto px-6 lg:px-10;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-accent-gold via-accent-gold-bright to-accent-teal bg-clip-text text-transparent;
+  }
+
+  .card-base {
+    @apply bg-bg-card border border-border rounded-2xl shadow-card;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-6 py-3 bg-accent-gold text-bg-primary font-display font-semibold text-sm rounded-full hover:bg-accent-gold-bright transition-all duration-300 shadow-gold hover:shadow-gold-lg cursor-pointer;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center gap-2 px-6 py-3 border border-border-bright text-text-primary font-display text-sm rounded-full hover:border-accent-gold hover:text-accent-gold transition-all duration-300 cursor-pointer;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 text-red-400 font-body text-sm rounded-xl hover:bg-red-500/20 transition-all duration-200 cursor-pointer;
+  }
+
+  .dot-grid {
+    background-image: radial-gradient(circle, #1e1d2e 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  /* Admin specific */
+  .admin-input {
+    @apply w-full bg-admin-input border border-border rounded-xl px-4 py-3 font-body text-sm text-text-primary placeholder-text-muted focus:border-accent-gold/60 focus:outline-none transition-all duration-200;
+  }
+
+  .admin-label {
+    @apply block font-mono text-xs text-text-muted mb-1.5 tracking-wide uppercase;
+  }
+
+  .admin-card {
+    @apply bg-admin-card border border-border rounded-2xl p-5;
+  }
+
+  .admin-btn {
+    @apply inline-flex items-center gap-2 px-4 py-2.5 bg-accent-gold text-bg-primary font-semibold text-sm rounded-xl hover:bg-accent-gold-bright transition-all duration-200 cursor-pointer;
+  }
+
+  .admin-btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2.5 bg-bg-secondary border border-border-bright text-text-secondary text-sm rounded-xl hover:text-text-primary hover:border-accent-gold/40 transition-all duration-200 cursor-pointer;
+  }
+}
+
+/* Cursor */
+.cursor-dot {
+  width: 8px; height: 8px;
+  background: #e8b04b;
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+}
+
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1.5px solid rgba(232, 176, 75, 0.4);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  transition: all 0.12s ease;
+}
+
+.cursor-ring.hovering {
+  width: 50px; height: 50px;
+  border-color: #e8b04b;
+  background: rgba(232, 176, 75, 0.05);
+}
+
+/* Glow blobs */
+.glow-blob {
+  border-radius: 50%;
+  filter: blur(80px);
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Timeline */
+.timeline-line {
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, #2e2c45 10%, #2e2c45 90%, transparent);
+  transform: translateX(-50%);
+}
+
+/* Marquee */
+.marquee-track {
+  display: flex;
+  gap: 3rem;
+  animation: marquee 30s linear infinite;
+  white-space: nowrap;
+}
+
+/* Admin sidebar */
+.admin-nav-item {
+  @apply flex items-center gap-3 px-4 py-3 rounded-xl text-text-secondary text-sm font-body transition-all duration-200 cursor-pointer;
+}
+
+.admin-nav-item:hover {
+  @apply bg-admin-hover text-text-primary;
+}
+
+.admin-nav-item.active {
+  @apply bg-accent-gold/10 text-accent-gold border border-accent-gold/20;
+}
+
+@media (pointer: coarse) {
+  .cursor-dot, .cursor-ring { display: none; }
+}
