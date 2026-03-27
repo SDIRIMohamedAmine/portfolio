@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { ExternalLink, Github, ArrowRight } from 'lucide-react';
 import SectionTitle from './ui/SectionTitle';
 import { usePortfolio } from '../context/PortfolioContext';
 
 function ProjectCard({ project, index }) {
   const [hovered, setHovered] = useState(false);
+  const navigate = useNavigate();
   const techArr = Array.isArray(project.tech) ? project.tech : (project.tech || '').split(',').map(t => t.trim()).filter(Boolean);
+  const hasGithub = project.github_url && project.github_url !== '#';
 
   return (
     <motion.article
@@ -42,16 +45,18 @@ function ProjectCard({ project, index }) {
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 bg-bg-primary/70 backdrop-blur-sm flex items-center justify-center gap-4"
             >
-              <a href={project.live_url} target="_blank" rel="noopener noreferrer"
+              <button
                 className="flex items-center gap-2 px-4 py-2 bg-accent-gold text-bg-primary font-semibold text-sm rounded-full hover:bg-accent-gold-bright transition-colors"
-                onClick={(e) => e.stopPropagation()}>
-                <ExternalLink size={14} /> Live Demo
-              </a>
-              <a href={project.github_url} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border-bright text-text-primary text-sm rounded-full hover:border-accent-gold transition-colors"
-                onClick={(e) => e.stopPropagation()}>
-                <Github size={14} /> GitHub
-              </a>
+                onClick={(e) => { e.stopPropagation(); navigate(`/project/${project.id}`); }}>
+                <ExternalLink size={14} /> View Project
+              </button>
+              {hasGithub && (
+                <a href={project.github_url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border-bright text-text-primary text-sm rounded-full hover:border-accent-gold transition-colors"
+                  onClick={(e) => e.stopPropagation()}>
+                  <Github size={14} /> GitHub
+                </a>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
