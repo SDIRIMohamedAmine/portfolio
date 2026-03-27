@@ -2,150 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── CSS variable defaults (Forest Night theme) ── */
+:root {
+  --color-bg-primary:    #04100a;
+  --color-bg-secondary:  #071a0e;
+  --color-bg-tertiary:   #0a2216;
+  --color-bg-card:       #071510;
+  --color-accent:        #e8b04b;
+  --color-accent-dim:    #b8882e;
+  --color-accent-bright: #f5c96a;
+  --color-text-primary:  #eef5f0;
+  --color-text-secondary:#8aab94;
+  --color-text-muted:    #3d6650;
+  --color-border:        #0f2e1c;
+  --color-border-bright: #1a4a2e;
+}
+
 @layer base {
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html {
-    scroll-behavior: smooth;
-    scroll-padding-top: 80px;
-  }
-
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
   body {
-    background-color: #07070e;
-    color: #f0eff8;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
     font-family: 'Outfit', sans-serif;
     overflow-x: hidden;
   }
-
-  ::selection {
-    background: rgba(232, 176, 75, 0.25);
-    color: #f5c96a;
-  }
-
+  ::selection { background: rgba(232, 176, 75, 0.22); color: var(--color-accent-bright); }
   ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: #07070e; }
-  ::-webkit-scrollbar-thumb { background: #2e2c45; border-radius: 2px; }
-  ::-webkit-scrollbar-thumb:hover { background: #e8b04b; }
+  ::-webkit-scrollbar-track { background: var(--color-bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--color-border-bright); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
 }
 
 @layer components {
-  .section-container {
-    @apply max-w-6xl mx-auto px-6 lg:px-10;
-  }
-
-  .gradient-text {
-    @apply bg-gradient-to-r from-accent-gold via-accent-gold-bright to-accent-teal bg-clip-text text-transparent;
-  }
-
-  .card-base {
-    @apply bg-bg-card border border-border rounded-2xl shadow-card;
-  }
-
-  .btn-primary {
-    @apply inline-flex items-center gap-2 px-6 py-3 bg-accent-gold text-bg-primary font-display font-semibold text-sm rounded-full hover:bg-accent-gold-bright transition-all duration-300 shadow-gold hover:shadow-gold-lg cursor-pointer;
-  }
-
-  .btn-outline {
-    @apply inline-flex items-center gap-2 px-6 py-3 border border-border-bright text-text-primary font-display text-sm rounded-full hover:border-accent-gold hover:text-accent-gold transition-all duration-300 cursor-pointer;
-  }
-
-  .btn-danger {
-    @apply inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 text-red-400 font-body text-sm rounded-xl hover:bg-red-500/20 transition-all duration-200 cursor-pointer;
-  }
-
-  .dot-grid {
-    background-image: radial-gradient(circle, #1e1d2e 1px, transparent 1px);
-    background-size: 30px 30px;
-  }
-
-  /* Admin specific */
-  .admin-input {
-    @apply w-full bg-admin-input border border-border rounded-xl px-4 py-3 font-body text-sm text-text-primary placeholder-text-muted focus:border-accent-gold/60 focus:outline-none transition-all duration-200;
-  }
-
-  .admin-label {
-    @apply block font-mono text-xs text-text-muted mb-1.5 tracking-wide uppercase;
-  }
-
-  .admin-card {
-    @apply bg-admin-card border border-border rounded-2xl p-5;
-  }
-
-  .admin-btn {
-    @apply inline-flex items-center gap-2 px-4 py-2.5 bg-accent-gold text-bg-primary font-semibold text-sm rounded-xl hover:bg-accent-gold-bright transition-all duration-200 cursor-pointer;
-  }
-
-  .admin-btn-secondary {
-    @apply inline-flex items-center gap-2 px-4 py-2.5 bg-bg-secondary border border-border-bright text-text-secondary text-sm rounded-xl hover:text-text-primary hover:border-accent-gold/40 transition-all duration-200 cursor-pointer;
-  }
+  .section-container { @apply max-w-6xl mx-auto px-6 lg:px-10; }
+  .gradient-text { background: linear-gradient(90deg, var(--color-accent), var(--color-accent-bright), #4ecdc4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .card-base { background-color: var(--color-bg-card); border: 1px solid var(--color-border); @apply rounded-2xl shadow-card; }
+  .btn-primary { @apply inline-flex items-center gap-2 px-6 py-3 font-display font-semibold text-sm rounded-full transition-all duration-300 shadow-gold hover:shadow-gold-lg cursor-pointer; background-color: var(--color-accent); color: var(--color-bg-primary); }
+  .btn-primary:hover { background-color: var(--color-accent-bright); }
+  .btn-outline { @apply inline-flex items-center gap-2 px-6 py-3 font-display text-sm rounded-full transition-all duration-300 cursor-pointer; border: 1px solid var(--color-border-bright); color: var(--color-text-primary); }
+  .btn-outline:hover { border-color: var(--color-accent); color: var(--color-accent); }
+  .dot-grid { background-image: radial-gradient(circle, var(--color-border) 1px, transparent 1px); background-size: 30px 30px; }
+  .admin-input { @apply w-full rounded-xl px-4 py-3 font-body text-sm focus:outline-none transition-all duration-200; background-color: var(--color-bg-secondary); border: 1px solid var(--color-border); color: var(--color-text-primary); }
+  .admin-input:focus { border-color: color-mix(in srgb, var(--color-accent) 60%, transparent); }
+  .admin-input::placeholder { color: var(--color-text-muted); }
+  .admin-label { @apply block font-mono text-xs mb-1.5 tracking-wide uppercase; color: var(--color-text-muted); }
+  .admin-card { @apply rounded-2xl p-5; background-color: var(--color-bg-card); border: 1px solid var(--color-border); }
+  .admin-btn { @apply inline-flex items-center gap-2 px-4 py-2.5 font-semibold text-sm rounded-xl transition-all duration-200 cursor-pointer; background-color: var(--color-accent); color: var(--color-bg-primary); }
+  .admin-btn:hover { background-color: var(--color-accent-bright); }
+  .admin-btn:disabled { opacity: 0.5; }
+  .admin-btn-secondary { @apply inline-flex items-center gap-2 px-4 py-2.5 text-sm rounded-xl transition-all duration-200 cursor-pointer; background-color: var(--color-bg-secondary); border: 1px solid var(--color-border-bright); color: var(--color-text-secondary); }
+  .admin-btn-secondary:hover { color: var(--color-text-primary); border-color: color-mix(in srgb, var(--color-accent) 40%, transparent); }
+  .admin-nav-item { @apply flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-body transition-all duration-200 cursor-pointer; color: var(--color-text-secondary); }
+  .admin-nav-item:hover { background-color: var(--color-bg-tertiary); color: var(--color-text-primary); }
+  .admin-nav-item.active { background: color-mix(in srgb, var(--color-accent) 10%, transparent); color: var(--color-accent); border: 1px solid color-mix(in srgb, var(--color-accent) 20%, transparent); }
 }
 
-/* Cursor */
-.cursor-dot {
-  width: 8px; height: 8px;
-  background: #e8b04b;
+/* Custom cursor */
+.cursor-dot { width:8px;height:8px;background:var(--color-accent);border-radius:50%;position:fixed;pointer-events:none;z-index:99999;transform:translate(-50%,-50%); }
+.cursor-ring { width:36px;height:36px;border:1.5px solid color-mix(in srgb, var(--color-accent) 40%, transparent);border-radius:50%;position:fixed;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:all 0.12s ease; }
+.cursor-ring.hovering { width:50px;height:50px;border-color:var(--color-accent);background:color-mix(in srgb,var(--color-accent) 5%,transparent); }
+.glow-blob { border-radius:50%;filter:blur(80px);position:absolute;pointer-events:none; }
+.timeline-line { position:absolute;left:50%;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--color-border-bright) 10%,var(--color-border-bright) 90%,transparent);transform:translateX(-50%); }
+.marquee-track { display:flex;gap:3rem;animation:marquee 30s linear infinite;white-space:nowrap; }
+@media (pointer:coarse) { .cursor-dot,.cursor-ring { display:none; } }
+
+/* ── Range slider (skill score) ── */
+input[type='range'] { -webkit-appearance: none; appearance: none; }
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
   border-radius: 50%;
-  position: fixed;
-  pointer-events: none;
-  z-index: 99999;
-  transform: translate(-50%, -50%);
+  background: var(--color-accent);
+  border: 2px solid var(--color-bg-primary);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(0,0,0,0.4);
+  margin-top: -8px;
 }
-
-.cursor-ring {
-  width: 36px; height: 36px;
-  border: 1.5px solid rgba(232, 176, 75, 0.4);
-  border-radius: 50%;
-  position: fixed;
-  pointer-events: none;
-  z-index: 99998;
-  transform: translate(-50%, -50%);
-  transition: all 0.12s ease;
+input[type='range']::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 4px; cursor: pointer;
 }
-
-.cursor-ring.hovering {
-  width: 50px; height: 50px;
-  border-color: #e8b04b;
-  background: rgba(232, 176, 75, 0.05);
+input[type='range']::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--color-accent); border: 2px solid var(--color-bg-primary);
+  cursor: pointer;
 }
-
-/* Glow blobs */
-.glow-blob {
-  border-radius: 50%;
-  filter: blur(80px);
-  position: absolute;
-  pointer-events: none;
-}
-
-/* Timeline */
-.timeline-line {
-  position: absolute;
-  left: 50%; top: 0; bottom: 0;
-  width: 1px;
-  background: linear-gradient(to bottom, transparent, #2e2c45 10%, #2e2c45 90%, transparent);
-  transform: translateX(-50%);
-}
-
-/* Marquee */
-.marquee-track {
-  display: flex;
-  gap: 3rem;
-  animation: marquee 30s linear infinite;
-  white-space: nowrap;
-}
-
-/* Admin sidebar */
-.admin-nav-item {
-  @apply flex items-center gap-3 px-4 py-3 rounded-xl text-text-secondary text-sm font-body transition-all duration-200 cursor-pointer;
-}
-
-.admin-nav-item:hover {
-  @apply bg-admin-hover text-text-primary;
-}
-
-.admin-nav-item.active {
-  @apply bg-accent-gold/10 text-accent-gold border border-accent-gold/20;
-}
-
-@media (pointer: coarse) {
-  .cursor-dot, .cursor-ring { display: none; }
-}
+/* Remove blue outline on select in admin */
+select.admin-input { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235c5a72' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; appearance: none; }
+/* No-scrollbar utility */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
