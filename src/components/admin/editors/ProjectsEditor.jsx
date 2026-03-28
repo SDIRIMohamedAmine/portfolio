@@ -38,28 +38,31 @@ function MediaManager({ media = [], onChange, addToast }) {
     setUrlInput('');
   };
 
-  const uploadFile = async (file) => {
-    if (!file) return;
-    const isImage = file.type.startsWith('image/');
-    const isVideo = file.type.startsWith('video/');
-    if (!isImage && !isVideo) { addToast('Only images and videos are supported.', 'error'); return; }
-    if (file.size > 50 * 1024 * 1024) { addToast('File must be under 50MB.', 'error'); return; }
-
+  const uploadFiles = async (files) => {
+    if (!files || files.length === 0) return;
+    const newItems = [];
     setUploading(true);
-    try {
-      const ext = file.name.split('.').pop();
-      const path = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: upErr } = await supabase.storage.from('assets').upload(path, file, { upsert: false });
-      if (upErr) throw upErr;
-      const { data } = supabase.storage.from('assets').getPublicUrl(path);
-      onChange([...media, { url: data.publicUrl, type: isVideo ? 'video' : 'image', caption: '' }]);
-      addToast('File uploaded!', 'success');
-    } catch (err) {
-      addToast(err.message || 'Upload failed.', 'error');
-    } finally {
-      setUploading(false);
+    let errCount = 0;
+    for (const file of Array.from(files)) {
+      const isImage = file.type.startsWith('image/');
+      const isVideo = file.type.startsWith('video/');
+      if (!isImage && !isVideo) { errCount++; continue; }
+      if (file.size > 50 * 1024 * 1024) { errCount++; continue; }
+      try {
+        const ext = file.name.split('.').pop();
+        const path = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error: upErr } = await supabase.storage.from('assets').upload(path, file, { upsert: false });
+        if (upErr) throw upErr;
+        const { data } = supabase.storage.from('assets').getPublicUrl(path);
+        newItems.push({ url: data.publicUrl, type: isVideo ? 'video' : 'image', caption: '' });
+      } catch { errCount++; }
     }
+    onChange([...media, ...newItems]);
+    if (newItems.length > 0) addToast(`${newItems.length} file${newItems.length > 1 ? 's' : ''} uploaded!`, 'success');
+    if (errCount > 0) addToast(`${errCount} file${errCount > 1 ? 's' : ''} failed or were skipped.`, 'error');
+    setUploading(false);
   };
+  const uploadFile = (file) => uploadFiles([file]);
 
   const removeItem = (idx) => onChange(media.filter((_, i) => i !== idx));
   const updateCaption = (idx, val) => onChange(media.map((m, i) => i === idx ? { ...m, caption: val } : m));
@@ -77,9 +80,9 @@ function MediaManager({ media = [], onChange, addToast }) {
             ? <motion.span className="w-3.5 h-3.5 border border-accent-gold/40 border-t-accent-gold rounded-full"
                 animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} />
             : <Upload size={13} />}
-          {uploading ? 'Uploading…' : 'Upload'}
+          {uploading ? 'Uploading…' : 'Upload files'}
         </button>
-        <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={(e) => uploadFile(e.target.files[0])} className="hidden" />
+        <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple onChange={(e) => uploadFiles(e.target.files)} className="hidden" />
         <input
           value={urlInput}
           onChange={(e) => setUrlInput(e.target.value)}

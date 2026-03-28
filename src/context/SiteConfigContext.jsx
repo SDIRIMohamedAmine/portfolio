@@ -4,10 +4,10 @@ import { supabase } from '../supabase/client';
 export const DEFAULT_SITE_CONTENT = {
   // Hero
   hero_badge:            'Open to opportunities',
-  hero_typing_strings:   ['Creative Professional', 'Problem Solver'],  // array
+  hero_typing_strings:   ['Creative Professional', 'Problem Solver'],
   hero_cta_primary:      'View My Work',
   hero_cta_secondary:    'Get in Touch',
-  hero_resume_label:     'Download CV',
+  hero_resume_label:     'Download Resume',
   hero_scroll_label:     'scroll',
 
   // About
@@ -15,10 +15,13 @@ export const DEFAULT_SITE_CONTENT = {
   about_title1:          'Passion meets',
   about_title2:          'purpose',
   about_skills_title:    'My Toolkit',
-  stat1_value: '5+',  stat1_label: 'Years of Experience',
-  stat2_value: '40+', stat2_label: 'Projects Completed',
-  stat3_value: '20+', stat3_label: 'Happy Clients',
-  stat4_value: '3',   stat4_label: 'Awards Won',
+  // Stats as a dynamic array — replaces stat1_value / stat1_label etc.
+  stats: [
+    { value: '5+',  label: 'Years of Experience' },
+    { value: '40+', label: 'Projects Completed' },
+    { value: '20+', label: 'Happy Clients' },
+    { value: '3',   label: 'Awards Won' },
+  ],
 
   // Projects
   projects_eyebrow:         'Portfolio',
@@ -63,19 +66,28 @@ export function SiteConfigProvider({ children }) {
   const fetchConfig = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('site_content').select('*').eq('id', 1).single();
+      const { data, error } = await supabase
+        .from('site_content')
+        .select('*')
+        .eq('id', 1)
+        .single();
+
       if (!error && data) {
-        // Parse hero_typing_strings — could come back as array (JSONB) or string
-        let typingStrings = DEFAULT_SITE_CONTENT.hero_typing_strings;
-        if (data.hero_typing_strings) {
-          typingStrings = typeof data.hero_typing_strings === 'string'
-            ? JSON.parse(data.hero_typing_strings)
-            : data.hero_typing_strings;
-        }
-        setConfig({ ...DEFAULT_SITE_CONTENT, ...data, hero_typing_strings: typingStrings });
+        // Parse JSONB arrays safely
+        const parseJsonb = (val, fallback) => {
+          if (!val) return fallback;
+          if (typeof val === 'string') { try { return JSON.parse(val); } catch { return fallback; } }
+          return val;
+        };
+        setConfig({
+          ...DEFAULT_SITE_CONTENT,
+          ...data,
+          hero_typing_strings: parseJsonb(data.hero_typing_strings, DEFAULT_SITE_CONTENT.hero_typing_strings),
+          stats: parseJsonb(data.stats, DEFAULT_SITE_CONTENT.stats),
+        });
       }
     } catch (err) {
-      console.warn('Could not fetch site_content:', err.message);
+      console.warn('site_content fetch error:', err.message);
     } finally {
       setLoading(false);
     }

@@ -92,3 +92,9 @@ select.admin-input { background-image: url("data:image/svg+xml,%3Csvg xmlns='htt
 /* No-scrollbar utility */
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ── Seamless marquee loop ── */
+@keyframes marquee-loop {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}

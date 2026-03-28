@@ -20,9 +20,7 @@ function SkillBar({ skill, index }) {
       initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, delay: index * 0.07, ease: [0.22, 1, 0.36, 1] }}
-      className="group"
     >
-      {/* Header row */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2.5">
           <span className="text-xl leading-none">{skill.icon}</span>
@@ -35,28 +33,28 @@ function SkillBar({ skill, index }) {
             )}
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0 ml-4">
-          <span className="font-display font-bold text-base" style={{ color: ACCENT }}>{skill.score ?? 5}</span>
+        <div className="flex items-center gap-1 shrink-0 ml-4">
+          <span className="font-display font-bold text-base" style={{ color: ACCENT }}>
+            {skill.score ?? 5}
+          </span>
           <span className="font-mono text-xs text-text-muted">/10</span>
         </div>
       </div>
 
-      {/* Progress bar */}
-      <div className="relative h-2 rounded-full overflow-hidden"
-        style={{ backgroundColor: 'var(--color-border-bright)' }}>
+      <div
+        className="relative h-2 rounded-full overflow-hidden"
+        style={{ backgroundColor: 'var(--color-border-bright)' }}
+      >
         <motion.div
           className="absolute inset-y-0 left-0 rounded-full"
-          style={{
-            background: `linear-gradient(90deg, var(--color-accent), var(--color-accent-bright))`,
-          }}
+          style={{ background: `linear-gradient(90deg, var(--color-accent), var(--color-accent-bright))` }}
           initial={{ width: 0 }}
           animate={inView ? { width: `${pct}%` } : { width: 0 }}
           transition={{ duration: 1.0, delay: index * 0.07 + 0.2, ease: [0.22, 1, 0.36, 1] }}
         />
-        {/* Glow at tip */}
         <motion.div
           className="absolute inset-y-0 w-6 rounded-full"
-          style={{ background: 'var(--color-accent)', filter: 'blur(6px)', opacity: 0.6 }}
+          style={{ background: 'var(--color-accent)', filter: 'blur(6px)', opacity: 0.55 }}
           initial={{ left: 0 }}
           animate={inView ? { left: `calc(${pct}% - 12px)` } : { left: 0 }}
           transition={{ duration: 1.0, delay: index * 0.07 + 0.2, ease: [0.22, 1, 0.36, 1] }}
@@ -66,15 +64,17 @@ function SkillBar({ skill, index }) {
   );
 }
 
-// ── Skill category group ──────────────────────────────────────────────────────
 function SkillCategoryGroup({ category, skills, startIndex }) {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-3">
-        <span className="font-mono text-xs tracking-[0.2em] uppercase font-semibold"
-          style={{ color: ACCENT }}>{category}</span>
+        <span className="font-mono text-xs tracking-[0.2em] uppercase font-semibold" style={{ color: ACCENT }}>
+          {category}
+        </span>
         <div className="flex-1 h-px" style={{ background: 'var(--color-border)' }} />
-        <span className="font-mono text-xs text-text-muted">{skills.length} skill{skills.length !== 1 ? 's' : ''}</span>
+        <span className="font-mono text-xs text-text-muted">
+          {skills.length} skill{skills.length !== 1 ? 's' : ''}
+        </span>
       </div>
       <div className="flex flex-col gap-5">
         {skills.map((skill, i) => (
@@ -85,7 +85,7 @@ function SkillCategoryGroup({ category, skills, startIndex }) {
   );
 }
 
-// ── Stats counter tile ────────────────────────────────────────────────────────
+// ── Stat tile ─────────────────────────────────────────────────────────────────
 function StatTile({ value, label, index }) {
   return (
     <motion.div
@@ -93,8 +93,8 @@ function StatTile({ value, label, index }) {
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.5, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -4, boxShadow: '0 8px 40px rgba(0,0,0,0.5)' }}
-      className="card-base p-5 flex flex-col gap-1 transition-shadow duration-300"
+      whileHover={{ y: -4 }}
+      className="card-base p-5 flex flex-col gap-1"
     >
       <p className="font-display font-extrabold text-3xl" style={{ color: ACCENT }}>{value}</p>
       <p className="font-body text-sm text-text-muted">{label}</p>
@@ -102,6 +102,41 @@ function StatTile({ value, label, index }) {
   );
 }
 
+// ── Seamless marquee ──────────────────────────────────────────────────────────
+function SkillMarquee({ skills }) {
+  if (!skills.length) return null;
+  // Triplicate to ensure seamless loop at any container width
+  const items = [...skills, ...skills, ...skills];
+  return (
+    <div
+      className="mt-20 overflow-hidden border-y py-5 -mx-6 lg:-mx-10"
+      style={{ borderColor: 'var(--color-border)' }}
+    >
+      {/* Fade masks on the edges */}
+      <div className="relative" style={{
+        maskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)',
+      }}>
+        <div
+          className="flex gap-10 w-max"
+          style={{ animation: 'marquee-loop 35s linear infinite' }}
+        >
+          {items.map((s, i) => (
+            <span
+              key={i}
+              className="flex items-center gap-2 font-display font-bold text-base whitespace-nowrap opacity-30 hover:opacity-60 transition-opacity cursor-default"
+            >
+              <span className="text-xl">{s.icon}</span>
+              {s.name}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main About component ──────────────────────────────────────────────────────
 export default function About() {
   const { info, skills } = usePortfolio();
   const { config } = useSiteConfig();
@@ -109,19 +144,21 @@ export default function About() {
 
   const hasResume = info.resume_url && info.resume_url !== '#';
 
-  const stats = [
-    { value: config.stat1_value, label: config.stat1_label },
-    { value: config.stat2_value, label: config.stat2_label },
-    { value: config.stat3_value, label: config.stat3_label },
-    { value: config.stat4_value, label: config.stat4_label },
-  ];
+  // Dynamic stats from config — filter out empty ones
+  const stats = (Array.isArray(config.stats) ? config.stats : []).filter(
+    (s) => s.value && s.label
+  );
 
-  // Group skills by category
+  // Decide grid columns based on stat count
+  const statCols =
+    stats.length === 1 ? 'grid-cols-1 max-w-xs' :
+    stats.length === 2 ? 'grid-cols-2 max-w-sm' :
+    stats.length === 3 ? 'grid-cols-3' :
+    'grid-cols-2';
+
+  // Group skills by category, sorted by score
   const categories = [...new Set(skills.map((s) => s.category || 'General'))];
-  // Sort skills within each category by score desc
   const sortedSkills = [...skills].sort((a, b) => (b.score ?? 5) - (a.score ?? 5));
-
-  // Limit to first 2 categories unless expanded
   const visibleCategories = showAllSkills ? categories : categories.slice(0, 2);
   const hiddenCount = categories.length - 2;
 
@@ -129,26 +166,26 @@ export default function About() {
 
   return (
     <section id="about" className="py-28 relative overflow-hidden">
-      {/* BG glow */}
-      <div className="glow-blob w-[600px] h-[600px] -left-60 top-1/4 opacity-30"
-        style={{ background: ACCENT }} />
+      <div
+        className="glow-blob w-[600px] h-[600px] -left-60 top-1/4 opacity-25"
+        style={{ background: ACCENT }}
+      />
 
       <div className="section-container relative z-10">
-
-        {/* ── Top: Bio + Stats ─────────────────────────────── */}
+        {/* ── Bio + Stats ── */}
         <div className="grid lg:grid-cols-2 gap-16 items-start mb-20">
-
-          {/* Left — bio */}
+          {/* Left: bio */}
           <SectionReveal variant="slide-right">
             <SectionTitle
               eyebrow={config.about_eyebrow}
               title={
-                <>{config.about_title1}<br />
+                <>
+                  {config.about_title1}
+                  <br />
                   <span className="gradient-text">{config.about_title2}</span>
                 </>
               }
             />
-
             <div className="flex flex-col gap-4 mt-6">
               {info.bio && (
                 <p className="font-body text-text-secondary leading-relaxed">{info.bio}</p>
@@ -158,14 +195,13 @@ export default function About() {
               )}
             </div>
 
-            {/* Resume download button */}
             {hasResume && (
               <motion.a
                 href={info.resume_url}
                 download
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-full font-display font-semibold text-sm transition-all duration-300 shadow-gold hover:shadow-gold-lg"
+                className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-full font-display font-semibold text-sm transition-all duration-300"
                 style={{ backgroundColor: ACCENT, color: 'var(--color-bg-primary)' }}
                 whileHover={{ scale: 1.04, boxShadow: '0 0 40px rgba(232,176,75,0.35)' }}
                 whileTap={{ scale: 0.97 }}
@@ -176,21 +212,26 @@ export default function About() {
             )}
           </SectionReveal>
 
-          {/* Right — stats */}
-          <SectionReveal variant="slide-left" delay={0.1}>
-            <div className="grid grid-cols-2 gap-4">
-              {stats.map(({ value, label }, i) => (
-                <StatTile key={label} value={value} label={label} index={i} />
-              ))}
-            </div>
-          </SectionReveal>
+          {/* Right: stats — only render if there are any */}
+          {stats.length > 0 && (
+            <SectionReveal variant="slide-left" delay={0.1}>
+              <div className={`grid ${statCols} gap-4`}>
+                {stats.map(({ value, label }, i) => (
+                  <StatTile key={`${value}-${label}`} value={value} label={label} index={i} />
+                ))}
+              </div>
+            </SectionReveal>
+          )}
         </div>
 
-        {/* ── Skills section ───────────────────────────────── */}
+        {/* ── Skills ── */}
         <SectionReveal variant="slide-up">
           <div className="flex items-center gap-4 mb-10">
             <div>
-              <p className="font-mono text-xs tracking-[0.25em] uppercase mb-1" style={{ color: ACCENT }}>
+              <p
+                className="font-mono text-xs tracking-[0.25em] uppercase mb-1"
+                style={{ color: ACCENT }}
+              >
                 {config.about_skills_title || 'My Toolkit'}
               </p>
               <h3 className="font-display font-extrabold text-2xl md:text-3xl text-text-primary">
@@ -208,7 +249,9 @@ export default function About() {
         ) : (
           <div className="grid md:grid-cols-2 gap-x-16 gap-y-12">
             {visibleCategories.map((category) => {
-              const catSkills = sortedSkills.filter((s) => (s.category || 'General') === category);
+              const catSkills = sortedSkills.filter(
+                (s) => (s.category || 'General') === category
+              );
               const startIdx = globalSkillIndex;
               globalSkillIndex += catSkills.length;
               return (
@@ -223,7 +266,7 @@ export default function About() {
           </div>
         )}
 
-        {/* Show more / less toggle */}
+        {/* Show more/less */}
         {categories.length > 2 && (
           <div className="flex justify-center mt-10">
             <motion.button
@@ -242,19 +285,8 @@ export default function About() {
           </div>
         )}
 
-        {/* Marquee ticker */}
-        <div className="mt-20 overflow-hidden border-y py-5 -mx-6 lg:-mx-10"
-          style={{ borderColor: 'var(--color-border)' }}>
-          <div className="flex">
-            <div className="marquee-track">
-              {[...skills, ...skills].map((s, i) => (
-                <span key={i} className="font-display font-bold text-lg whitespace-nowrap opacity-30">
-                  {s.icon} {s.name}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
+        {/* Seamless marquee */}
+        <SkillMarquee skills={skills} />
       </div>
     </section>
   );

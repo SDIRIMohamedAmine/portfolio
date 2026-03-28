@@ -1,18 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Save, Layout, ChevronDown, ChevronRight, Plus, X } from 'lucide-react';
+import { Save, Layout, ChevronDown, ChevronRight, Plus, X, GripVertical } from 'lucide-react';
 import { supabase } from '../../../supabase/client';
 import { useSiteConfig, DEFAULT_SITE_CONTENT } from '../../../context/SiteConfigContext';
 
 // ── Typing strings array editor ───────────────────────────────────────────────
 function TypingStringsEditor({ strings, onChange }) {
   const [newVal, setNewVal] = useState('');
-  const add = () => {
-    const v = newVal.trim();
-    if (!v) return;
-    onChange([...strings, v]);
-    setNewVal('');
-  };
+  const add = () => { const v = newVal.trim(); if (!v) return; onChange([...strings, v]); setNewVal(''); };
   const remove = (i) => onChange(strings.filter((_, idx) => idx !== i));
   const update = (i, val) => onChange(strings.map((s, idx) => idx === i ? val : s));
 
@@ -20,12 +15,11 @@ function TypingStringsEditor({ strings, onChange }) {
     <div className="flex flex-col gap-2">
       <AnimatePresence>
         {strings.map((s, i) => (
-          <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}
+          <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
             className="flex items-center gap-2">
             <span className="font-mono text-xs text-text-muted w-5 shrink-0">{i + 1}.</span>
             <input value={s} onChange={(e) => update(i, e.target.value)}
-              placeholder="e.g. Mechanical Engineer, Photographer…"
-              className="admin-input flex-1 text-sm" />
+              placeholder="e.g. Mechanical Engineer, Photographer…" className="admin-input flex-1 text-sm" />
             <button type="button" onClick={() => remove(i)}
               className="p-2 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-500/10 transition-all shrink-0">
               <X size={14} />
@@ -36,14 +30,63 @@ function TypingStringsEditor({ strings, onChange }) {
       <div className="flex gap-2 mt-1">
         <input value={newVal} onChange={(e) => setNewVal(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && add()}
-          placeholder="Add a new typing string…"
-          className="admin-input flex-1 text-sm" />
-        <button type="button" onClick={add}
-          className="admin-btn-secondary px-3 shrink-0">
-          <Plus size={14} />
+          placeholder="Add a typing string and press Enter…" className="admin-input flex-1 text-sm" />
+        <button type="button" onClick={add} className="admin-btn-secondary px-3 shrink-0"><Plus size={14} /></button>
+      </div>
+      <p className="font-mono text-[10px] text-text-muted">These cycle in the hero. Press Enter or + to add.</p>
+    </div>
+  );
+}
+
+// ── Dynamic stats editor ──────────────────────────────────────────────────────
+function StatsEditor({ stats, onChange }) {
+  const add = () => onChange([...stats, { value: '', label: '' }]);
+  const remove = (i) => onChange(stats.filter((_, idx) => idx !== i));
+  const update = (i, key, val) => onChange(stats.map((s, idx) => idx === i ? { ...s, [key]: val } : s));
+
+  return (
+    <div className="flex flex-col gap-3 md:col-span-2">
+      <div className="flex items-center justify-between">
+        <label className="admin-label mb-0">Stats tiles (shown in About section)</label>
+        <button type="button" onClick={add} className="admin-btn-secondary text-xs px-3 py-1.5">
+          <Plus size={13} /> Add stat
         </button>
       </div>
-      <p className="font-mono text-[10px] text-text-muted">These cycle in the hero section. Press Enter or click + to add.</p>
+      <p className="font-mono text-[10px] text-text-muted">
+        Add as many stats as you want. Empty ones are hidden. Tiles adapt their layout automatically.
+      </p>
+
+      <AnimatePresence>
+        {stats.map((stat, i) => (
+          <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="grid grid-cols-[1fr_2fr_auto] gap-2 items-end p-3 rounded-xl border"
+            style={{ backgroundColor: 'color-mix(in srgb, var(--color-bg-primary) 50%, transparent)', borderColor: 'var(--color-border)' }}>
+            <div>
+              {i === 0 && <label className="admin-label">Number / Value</label>}
+              <input value={stat.value} onChange={(e) => update(i, 'value', e.target.value)}
+                placeholder="e.g. 5+" className="admin-input" />
+            </div>
+            <div>
+              {i === 0 && <label className="admin-label">Label</label>}
+              <input value={stat.label} onChange={(e) => update(i, 'label', e.target.value)}
+                placeholder="e.g. Years of Experience" className="admin-input" />
+            </div>
+            <div className={i === 0 ? 'mt-5' : ''}>
+              <button type="button" onClick={() => remove(i)}
+                className="p-2.5 rounded-xl border text-text-muted hover:text-red-400 hover:border-red-400/40 transition-all"
+                style={{ backgroundColor: 'var(--color-bg-secondary)', borderColor: 'var(--color-border)' }}>
+                <X size={14} />
+              </button>
+            </div>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+
+      {stats.length === 0 && (
+        <p className="font-body text-xs text-text-muted italic px-2">
+          No stats — the stats section will be hidden on the public site.
+        </p>
+      )}
     </div>
   );
 }
@@ -53,12 +96,12 @@ const SECTIONS = [
   {
     id: 'hero', label: 'Hero Section', emoji: '🏠', desc: 'Full-screen landing',
     fields: [
-      { key: 'hero_badge',          label: 'Badge text',                 hint: '"Open to opportunities"' },
-      { key: 'hero_typing_strings', label: 'Typing strings',             type: 'typing_array' },
-      { key: 'hero_cta_primary',    label: 'Primary button',             hint: '"View My Work"' },
-      { key: 'hero_cta_secondary',  label: 'Secondary button',           hint: '"Get in Touch"' },
-      { key: 'hero_resume_label',   label: 'Resume download button',     hint: '"Download CV"' },
-      { key: 'hero_scroll_label',   label: 'Scroll indicator text',      hint: '"scroll"', type: 'short' },
+      { key: 'hero_badge',          label: 'Badge text',           hint: '"Open to opportunities"' },
+      { key: 'hero_typing_strings', label: 'Typing strings',       type: 'typing_array' },
+      { key: 'hero_cta_primary',    label: 'Primary button' },
+      { key: 'hero_cta_secondary',  label: 'Secondary button' },
+      { key: 'hero_resume_label',   label: 'Resume download button text' },
+      { key: 'hero_scroll_label',   label: 'Scroll indicator',     type: 'short' },
     ],
   },
   {
@@ -68,14 +111,7 @@ const SECTIONS = [
       { key: 'about_title1',       label: 'Title — line 1' },
       { key: 'about_title2',       label: 'Title — line 2 (gradient)' },
       { key: 'about_skills_title', label: 'Skills sub-heading' },
-      { key: 'stat1_value', label: 'Stat 1 — Number', type: 'short' },
-      { key: 'stat1_label', label: 'Stat 1 — Label',  type: 'short' },
-      { key: 'stat2_value', label: 'Stat 2 — Number', type: 'short' },
-      { key: 'stat2_label', label: 'Stat 2 — Label',  type: 'short' },
-      { key: 'stat3_value', label: 'Stat 3 — Number', type: 'short' },
-      { key: 'stat3_label', label: 'Stat 3 — Label',  type: 'short' },
-      { key: 'stat4_value', label: 'Stat 4 — Number', type: 'short' },
-      { key: 'stat4_label', label: 'Stat 4 — Label',  type: 'short' },
+      { key: 'stats',              label: 'Stats tiles', type: 'stats_array' },
     ],
   },
   {
@@ -84,10 +120,10 @@ const SECTIONS = [
       { key: 'projects_eyebrow',         label: 'Eyebrow label' },
       { key: 'projects_title1',          label: 'Title — line 1' },
       { key: 'projects_title2',          label: 'Title — line 2 (gradient)' },
-      { key: 'projects_subtitle',        label: 'Subtitle', type: 'textarea' },
-      { key: 'projects_filter_all',      label: '"All" filter button', type: 'short' },
-      { key: 'projects_filter_featured', label: '"Featured" filter button', type: 'short' },
-      { key: 'projects_github_cta',      label: 'GitHub CTA button text' },
+      { key: 'projects_subtitle',        label: 'Subtitle',             type: 'textarea' },
+      { key: 'projects_filter_all',      label: '"All" filter button',  type: 'short' },
+      { key: 'projects_filter_featured', label: '"Featured" button',    type: 'short' },
+      { key: 'projects_github_cta',      label: 'GitHub CTA button' },
     ],
   },
   {
@@ -104,94 +140,80 @@ const SECTIONS = [
       { key: 'contact_eyebrow',             label: 'Eyebrow label' },
       { key: 'contact_title1',              label: 'Title — line 1' },
       { key: 'contact_title2',              label: 'Title — line 2 (gradient)' },
-      { key: 'contact_subtitle',            label: 'Subtitle', type: 'textarea' },
-      { key: 'contact_email_label',         label: 'Email label', type: 'short' },
-      { key: 'contact_location_label',      label: 'Location label', type: 'short' },
+      { key: 'contact_subtitle',            label: 'Subtitle',             type: 'textarea' },
+      { key: 'contact_email_label',         label: 'Email label',          type: 'short' },
+      { key: 'contact_location_label',      label: 'Location label',       type: 'short' },
       { key: 'contact_socials_label',       label: '"Find me on" label' },
       { key: 'contact_form_title',          label: 'Form heading' },
       { key: 'contact_name_placeholder',    label: 'Name placeholder' },
       { key: 'contact_email_placeholder',   label: 'Email placeholder' },
-      { key: 'contact_message_placeholder', label: 'Message placeholder', type: 'textarea' },
-      { key: 'contact_submit_label',        label: 'Submit button text', type: 'short' },
+      { key: 'contact_message_placeholder', label: 'Message placeholder',  type: 'textarea' },
+      { key: 'contact_submit_label',        label: 'Submit button',        type: 'short' },
       { key: 'contact_success_title',       label: 'Success title' },
-      { key: 'contact_success_body',        label: 'Success message', type: 'textarea' },
+      { key: 'contact_success_body',        label: 'Success message',      type: 'textarea' },
     ],
   },
   {
     id: 'footer', label: 'Footer', emoji: '🔻', desc: 'Bottom of page',
-    fields: [
-      { key: 'footer_tagline', label: 'Footer tagline' },
-    ],
+    fields: [{ key: 'footer_tagline', label: 'Footer tagline' }],
   },
 ];
 
+// ── DB column whitelist (no phantom columns) ──────────────────────────────────
+const DB_TEXT_COLUMNS = [
+  'hero_badge','hero_cta_primary','hero_cta_secondary','hero_resume_label','hero_scroll_label',
+  'about_eyebrow','about_title1','about_title2','about_skills_title',
+  'projects_eyebrow','projects_title1','projects_title2','projects_subtitle',
+  'projects_filter_all','projects_filter_featured','projects_github_cta',
+  'experience_eyebrow','experience_title1','experience_title2',
+  'contact_eyebrow','contact_title1','contact_title2','contact_subtitle',
+  'contact_email_label','contact_location_label','contact_socials_label',
+  'contact_form_title','contact_name_placeholder','contact_email_placeholder',
+  'contact_message_placeholder','contact_submit_label','contact_success_title','contact_success_body',
+  'footer_tagline',
+];
+
+// ── Accordion section ─────────────────────────────────────────────────────────
 function SectionGroup({ section, form, onChange, open, onToggle }) {
-  const statKeys = ['stat1_value','stat1_label','stat2_value','stat2_label',
-                    'stat3_value','stat3_label','stat4_value','stat4_label'];
-  const rendered = new Set();
-  const elements = [];
-
-  for (const f of section.fields) {
-    if (rendered.has(f.key)) continue;
-    rendered.add(f.key);
-
-    // Typing array
+  const elements = section.fields.map((f) => {
+    // Special: typing strings array
     if (f.type === 'typing_array') {
-      elements.push(
+      return (
         <div key={f.key} className="md:col-span-2">
           <label className="admin-label">{f.label}</label>
           <TypingStringsEditor
-            strings={Array.isArray(form[f.key]) ? form[f.key] : (DEFAULT_SITE_CONTENT[f.key] || [])}
+            strings={Array.isArray(form[f.key]) ? form[f.key] : DEFAULT_SITE_CONTENT.hero_typing_strings}
             onChange={(arr) => onChange(f.key, arr)}
           />
         </div>
       );
-      continue;
     }
-
-    // Stat pair
-    if (f.key.endsWith('_value') && statKeys.includes(f.key)) {
-      const num = f.key.match(/\d+/)[0];
-      const labelField = section.fields.find(x => x.key === `stat${num}_label`);
-      if (labelField) rendered.add(labelField.key);
-      elements.push(
-        <div key={f.key} className="md:col-span-2 grid grid-cols-2 gap-3 p-3 rounded-xl"
-          style={{ backgroundColor: 'color-mix(in srgb, var(--color-bg-primary) 50%, transparent)', border: '1px solid var(--color-border)' }}>
-          <span className="col-span-2 font-mono text-[10px] text-text-muted uppercase tracking-widest">Stat {num}</span>
-          <div>
-            <label className="admin-label">Number</label>
-            <input value={form[f.key] ?? ''} onChange={e => onChange(f.key, e.target.value)}
-              placeholder={DEFAULT_SITE_CONTENT[f.key]} className="admin-input" />
-          </div>
-          {labelField && (
-            <div>
-              <label className="admin-label">Label</label>
-              <input value={form[labelField.key] ?? ''} onChange={e => onChange(labelField.key, e.target.value)}
-                placeholder={DEFAULT_SITE_CONTENT[labelField.key]} className="admin-input" />
-            </div>
-          )}
-        </div>
+    // Special: dynamic stats array
+    if (f.type === 'stats_array') {
+      return (
+        <StatsEditor
+          key={f.key}
+          stats={Array.isArray(form.stats) ? form.stats : DEFAULT_SITE_CONTENT.stats}
+          onChange={(arr) => onChange('stats', arr)}
+        />
       );
-      continue;
     }
 
     const isShort    = f.type === 'short';
     const isTextarea = f.type === 'textarea';
-
-    elements.push(
+    return (
       <div key={f.key} className={isShort ? '' : 'md:col-span-2'}>
         <label className="admin-label">{f.label}</label>
         {isTextarea ? (
-          <textarea value={form[f.key] ?? ''} onChange={e => onChange(f.key, e.target.value)}
-            placeholder={f.hint || DEFAULT_SITE_CONTENT[f.key]}
-            rows={2} className="admin-input resize-none" />
+          <textarea value={form[f.key] ?? ''} onChange={(e) => onChange(f.key, e.target.value)}
+            placeholder={f.hint || DEFAULT_SITE_CONTENT[f.key] || ''} rows={2} className="admin-input resize-none" />
         ) : (
-          <input value={form[f.key] ?? ''} onChange={e => onChange(f.key, e.target.value)}
-            placeholder={f.hint || DEFAULT_SITE_CONTENT[f.key]} className="admin-input" />
+          <input value={form[f.key] ?? ''} onChange={(e) => onChange(f.key, e.target.value)}
+            placeholder={f.hint || DEFAULT_SITE_CONTENT[f.key] || ''} className="admin-input" />
         )}
       </div>
     );
-  }
+  });
 
   return (
     <div className="admin-card overflow-hidden">
@@ -205,10 +227,10 @@ function SectionGroup({ section, form, onChange, open, onToggle }) {
         </div>
         {open ? <ChevronDown size={16} className="text-text-muted" /> : <ChevronRight size={16} className="text-text-muted" />}
       </button>
-
       {open && (
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-          className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 border-t pt-4" style={{ borderColor: 'var(--color-border)' }}>
+          className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 border-t pt-4"
+          style={{ borderColor: 'var(--color-border)' }}>
           {elements}
         </motion.div>
       )}
@@ -216,18 +238,18 @@ function SectionGroup({ section, form, onChange, open, onToggle }) {
   );
 }
 
+// ── Main ──────────────────────────────────────────────────────────────────────
 export default function SiteContentEditor({ addToast }) {
   const { config, refetchConfig } = useSiteConfig();
-  // Only include keys that exist in the DB schema — no nav_cta_label
-  const safeDefaults = { ...DEFAULT_SITE_CONTENT };
-  delete safeDefaults.hero_typing_strings; // handled separately as JSONB
-
-  const [form, setForm] = useState({ ...safeDefaults, ...config });
+  const [form, setForm] = useState({ ...DEFAULT_SITE_CONTENT, ...config });
   const [saving, setSaving] = useState(false);
   const [openSections, setOpenSections] = useState({ hero: true });
 
   useEffect(() => {
-    setForm((f) => ({ ...safeDefaults, ...config, ...f }));
+    setForm((f) => ({ ...DEFAULT_SITE_CONTENT, ...config, ...f,
+      hero_typing_strings: config.hero_typing_strings ?? DEFAULT_SITE_CONTENT.hero_typing_strings,
+      stats: config.stats ?? DEFAULT_SITE_CONTENT.stats,
+    }));
   }, [config]);
 
   const handleChange = (key, val) => setForm((f) => ({ ...f, [key]: val }));
@@ -237,30 +259,14 @@ export default function SiteContentEditor({ addToast }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Separate the typing strings (JSONB) from the text columns
-      const { hero_typing_strings, ...textFields } = form;
-
-      // Build payload — only columns that exist in site_content DB table
-      const dbColumns = [
-        'hero_badge','hero_cta_primary','hero_cta_secondary','hero_resume_label','hero_scroll_label',
-        'about_eyebrow','about_title1','about_title2','about_skills_title',
-        'stat1_value','stat1_label','stat2_value','stat2_label',
-        'stat3_value','stat3_label','stat4_value','stat4_label',
-        'projects_eyebrow','projects_title1','projects_title2','projects_subtitle',
-        'projects_filter_all','projects_filter_featured','projects_github_cta',
-        'experience_eyebrow','experience_title1','experience_title2',
-        'contact_eyebrow','contact_title1','contact_title2','contact_subtitle',
-        'contact_email_label','contact_location_label','contact_socials_label',
-        'contact_form_title','contact_name_placeholder','contact_email_placeholder',
-        'contact_message_placeholder','contact_submit_label','contact_success_title','contact_success_body',
-        'footer_tagline',
-      ];
       const payload = { id: 1 };
-      dbColumns.forEach((k) => { if (k in textFields) payload[k] = textFields[k]; });
-      // Add the JSONB array
-      payload.hero_typing_strings = Array.isArray(hero_typing_strings)
-        ? hero_typing_strings
-        : DEFAULT_SITE_CONTENT.hero_typing_strings;
+      DB_TEXT_COLUMNS.forEach((k) => { if (k in form) payload[k] = form[k]; });
+      // JSONB columns
+      payload.hero_typing_strings = Array.isArray(form.hero_typing_strings)
+        ? form.hero_typing_strings : DEFAULT_SITE_CONTENT.hero_typing_strings;
+      payload.stats = Array.isArray(form.stats)
+        ? form.stats.filter((s) => s.value || s.label)
+        : DEFAULT_SITE_CONTENT.stats;
 
       const { error } = await supabase.from('site_content').upsert(payload, { onConflict: 'id' });
       if (error) throw error;
@@ -292,7 +298,8 @@ export default function SiteContentEditor({ addToast }) {
             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             {saving ? (
               <><motion.span className="w-4 h-4 border-2 border-bg-primary/40 border-t-bg-primary rounded-full"
-                animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} /> Saving…</>
+                animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} />
+                Saving…</>
             ) : (
               <><Save size={15} /> Save All</>
             )}
@@ -304,7 +311,7 @@ export default function SiteContentEditor({ addToast }) {
         style={{ background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 20%, transparent)' }}>
         <span style={{ color: 'var(--color-accent)' }}>💡</span>
         <p className="font-body text-xs text-text-secondary">
-          Edit any text visible on the public site. Click <strong className="text-text-primary">Save All</strong> once when done.
+          Edit any text visible on the public site. Click <strong className="text-text-primary">Save All</strong> when done.
         </p>
       </div>
 
