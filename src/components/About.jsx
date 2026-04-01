@@ -187,9 +187,7 @@ export default function About() {
               }
             />
             <div className="flex flex-col gap-4 mt-6">
-              {info.bio && (
-                <p className="font-body text-text-secondary leading-relaxed">{info.bio}</p>
-              )}
+             
               {info.bio_extended && (
                 <p className="font-body text-text-secondary leading-relaxed">{info.bio_extended}</p>
               )}
