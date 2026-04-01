@@ -1,0 +1,17 @@
+name: Supabase Heartbeat
+
+on:
+  schedule:
+    # This runs every Monday and Thursday at midnight to be safe
+    - cron: '0 0 * * 1,4'
+  workflow_dispatch: # Allows you to run it manually from the Actions tab
+
+jobs:
+  ping_supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send request to Supabase
+        run: |
+          curl -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/projects?select=*" \
+          -H "apikey: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}"
