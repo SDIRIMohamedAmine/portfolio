@@ -50,45 +50,45 @@ export default function Contact() {
     .map((s) => ({ platform: s.platform, label: s.label, href: s.url }));
   const allSocials = [...coreSocials, ...extraSocials];
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setStatus('sending');
-    try {
-      // 1. Save to Supabase (admin can read messages there)
-      const { error: dbErr } = await supabase
-        .from('contact_messages')
-        .insert({ name: form.name, email: form.email, message: form.message });
-      if (dbErr) console.warn('DB save:', dbErr.message);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setStatus('sending');
+  try {
+    // 1. Save to Supabase
+    const { error: dbErr } = await supabase
+      .from('contact_messages')
+      .insert({ name: form.name, email: form.email, message: form.message });
+    
+    // 2. EmailJS Logic
+    const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID;
+    const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
+    const publicKey  = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
 
-      // 2. Attempt to send via EmailJS if configured
-      const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID;
-      const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
-      const publicKey  = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
-
-     if (serviceId && templateId && publicKey) {
-  const { default: emailjs } = await import('@emailjs/browser');
-  await emailjs.send(
-    serviceId,
-    templateId,
-    { 
-      name: form.name,    // Matches {{name}} in your template
-      email: form.email,  // Matches {{email}} in your template
-      message: form.message, 
-      to_email: info.email 
-    },
-    publicKey
-  );
-}
-
-      setStatus('sent');
-      setForm({ name: '', email: '', message: '' });
-      setTimeout(() => setStatus('idle'), 5000);
-    } catch (err) {
-      console.error('Send error:', err);
-      setStatus('error');
-      setTimeout(() => setStatus('idle'), 4000);
+    if (serviceId && templateId && publicKey) {
+      const { default: emailjs } = await import('@emailjs/browser');
+      
+      await emailjs.send(
+        serviceId,
+        templateId,
+        { 
+          name: form.name,    // Matches {{name}}
+          email: form.email,  // Matches {{email}}
+          message: form.message, // Matches {{message}}
+          to_email: info.email 
+        },
+        publicKey
+      );
     }
-  };
+
+    setStatus('sent');
+    setForm({ name: '', email: '', message: '' });
+    setTimeout(() => setStatus('idle'), 5000);
+  } catch (err) {
+    console.error('Send error:', err);
+    setStatus('error');
+    setTimeout(() => setStatus('idle'), 4000);
+  }
+};
 
   return (
     <section id="contact" className="py-28 relative overflow-hidden">
