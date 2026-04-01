@@ -166,11 +166,10 @@ export default function Certificates() {
         <SectionReveal variant="slide-up">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
             <SectionTitle
-              eyebrow={config.certificates_eyebrow || 'Credentials'}
+      
               title={
                 <>
-                  {config.certificates_title1 || 'Certified &'}
-                  <br />
+             
                   <span className="gradient-text">
                     {config.certificates_title2 || 'recognized'}
                   </span>
