@@ -254,7 +254,7 @@ export default function ProjectDetails() {
                   <div className="flex items-start gap-3">
                     <Layers size={15} className="text-accent-gold mt-0.5 shrink-0" />
                     <div>
-                      <p className="font-mono text-[10px] text-text-muted uppercase tracking-wide mb-1">Tools</p>
+                      <p className="font-mono text-[10px] text-text-muted uppercase tracking-wide mb-1">Tech Stack</p>
                       <div className="flex flex-wrap gap-1.5">
                         {techArr.map((t) => (
                           <span key={t} className="px-2 py-0.5 bg-bg-secondary border border-border font-mono text-[10px] text-text-muted rounded">

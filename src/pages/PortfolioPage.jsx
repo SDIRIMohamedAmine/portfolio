@@ -1,19 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Navbar from '../components/Navbar';
-import Hero from '../components/Hero';
-import About from '../components/About';
-import Projects from '../components/Projects';
-import Experience from '../components/Experience';
-import Contact from '../components/Contact';
-import Footer from '../components/Footer';
+import Navbar        from '../components/Navbar';
+import Hero          from '../components/Hero';
+import About         from '../components/About';
+import Projects      from '../components/Projects';
+import Certificates  from '../components/Certificates';
+import Experience    from '../components/Experience';
+import Contact       from '../components/Contact';
+import Footer        from '../components/Footer';
 import { SectionDivider } from '../components/ui/SectionReveal';
 import { useActiveSection } from '../hooks/useActiveSection';
 import { usePortfolio } from '../context/PortfolioContext';
 
-const SECTIONS = ['hero', 'about', 'projects', 'experience', 'contact'];
+const SECTIONS = ['hero', 'about', 'projects', 'certificates', 'experience', 'contact'];
 
-// Custom cursor
 function CustomCursor() {
   const dotRef = useRef(null);
   const ringRef = useRef(null);
@@ -54,7 +54,6 @@ function CustomCursor() {
   );
 }
 
-// Spinning cog loader
 function SpinningCog() {
   return (
     <motion.svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24"
@@ -77,8 +76,7 @@ function Loader() {
       <div className="flex flex-col items-center gap-5">
         <SpinningCog />
         <motion.p
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.4 }}
           className="font-mono text-xs text-text-muted tracking-[0.2em] uppercase">
           Loading
@@ -116,16 +114,17 @@ export default function PortfolioPage() {
             <SectionDivider />
             <Projects />
             <SectionDivider />
+            <Certificates />
+            <SectionDivider />
             <Experience />
             <SectionDivider />
             <Contact />
           </main>
           <Footer />
 
-          {/* Scroll to top */}
           <motion.button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed bottom-8 right-8 w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-card transition-all z-40"
+            className="fixed bottom-8 right-8 w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-card z-40"
             style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border-bright)', color: 'var(--color-text-muted)' }}
             animate={{ opacity: activeSection !== 'hero' ? 1 : 0, scale: activeSection !== 'hero' ? 1 : 0 }}
             whileHover={{ scale: 1.1, borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}

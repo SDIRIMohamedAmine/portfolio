@@ -5,6 +5,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 const NAV_LINKS = [
   { label: 'About', href: '#about' },
   { label: 'Projects', href: '#projects' },
+  { label: 'Certificates', href: '#certificates' },
   { label: 'Experience', href: '#experience' },
   { label: 'Contact', href: '#contact' },
 ];

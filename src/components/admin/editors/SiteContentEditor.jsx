@@ -127,6 +127,15 @@ const SECTIONS = [
     ],
   },
   {
+    id: 'certificates', label: 'Certificates Section', emoji: '🏅', desc: 'Badges & credentials',
+    fields: [
+      { key: 'certificates_eyebrow',  label: 'Eyebrow label' },
+      { key: 'certificates_title1',   label: 'Title — line 1' },
+      { key: 'certificates_title2',   label: 'Title — line 2 (gradient)' },
+      { key: 'certificates_subtitle', label: 'Subtitle', type: 'textarea' },
+    ],
+  },
+  {
     id: 'experience', label: 'Experience Section', emoji: '📅', desc: 'Timeline',
     fields: [
       { key: 'experience_eyebrow', label: 'Eyebrow label' },
@@ -165,6 +174,7 @@ const DB_TEXT_COLUMNS = [
   'about_eyebrow','about_title1','about_title2','about_skills_title',
   'projects_eyebrow','projects_title1','projects_title2','projects_subtitle',
   'projects_filter_all','projects_filter_featured','projects_github_cta',
+  'certificates_eyebrow','certificates_title1','certificates_title2','certificates_subtitle',
   'experience_eyebrow','experience_title1','experience_title2',
   'contact_eyebrow','contact_title1','contact_title2','contact_subtitle',
   'contact_email_label','contact_location_label','contact_socials_label',

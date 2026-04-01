@@ -1,22 +1,28 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Code2, FolderOpen, Briefcase, Layout, Palette, LogOut, ExternalLink, ChevronRight, Menu, X } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { usePortfolio } from '../../context/PortfolioContext';
-import ProfileEditor     from './editors/ProfileEditor';
-import SkillsEditor      from './editors/SkillsEditor';
-import ProjectsEditor    from './editors/ProjectsEditor';
-import ExperienceEditor  from './editors/ExperienceEditor';
-import SiteContentEditor from './editors/SiteContentEditor';
-import AppearanceEditor  from './editors/AppearanceEditor';
+import {
+  User, Code2, FolderOpen, Briefcase, Layout, Palette, Award,
+  LogOut, ExternalLink, ChevronRight, Menu, X,
+} from 'lucide-react';
+import { useAuth }            from '../../context/AuthContext';
+import { usePortfolio }       from '../../context/PortfolioContext';
+import { useCertificates }    from '../../context/CertificatesContext';
+import ProfileEditor          from './editors/ProfileEditor';
+import SkillsEditor           from './editors/SkillsEditor';
+import ProjectsEditor         from './editors/ProjectsEditor';
+import ExperienceEditor       from './editors/ExperienceEditor';
+import SiteContentEditor      from './editors/SiteContentEditor';
+import AppearanceEditor       from './editors/AppearanceEditor';
+import CertificatesEditor     from './editors/CertificatesEditor';
 
 const NAV_ITEMS = [
-  { id: 'content',    label: 'Site Content',  icon: Layout,     desc: 'All text & labels' },
-  { id: 'appearance', label: 'Appearance',    icon: Palette,    desc: 'Colors & theme' },
-  { id: 'profile',    label: 'Profile',       icon: User,       desc: 'Bio, photo, socials' },
-  { id: 'skills',     label: 'Skills',        icon: Code2,      desc: 'Your toolkit' },
-  { id: 'projects',   label: 'Projects',      icon: FolderOpen, desc: 'Portfolio work' },
-  { id: 'experience', label: 'Experience',    icon: Briefcase,  desc: 'Timeline entries' },
+  { id: 'content',      label: 'Site Content',  icon: Layout,     desc: 'All text & labels' },
+  { id: 'appearance',   label: 'Appearance',    icon: Palette,    desc: 'Colors & theme' },
+  { id: 'profile',      label: 'Profile',       icon: User,       desc: 'Bio, photo, socials' },
+  { id: 'skills',       label: 'Skills',        icon: Code2,      desc: 'Your toolkit' },
+  { id: 'projects',     label: 'Projects',      icon: FolderOpen, desc: 'Portfolio work' },
+  { id: 'certificates', label: 'Certificates',  icon: Award,      desc: 'Badges & credentials' },
+  { id: 'experience',   label: 'Experience',    icon: Briefcase,  desc: 'Timeline entries' },
 ];
 
 function ToastManager({ toasts, removeToast }) {
@@ -46,11 +52,12 @@ function ToastManager({ toasts, removeToast }) {
 }
 
 export default function AdminDashboard() {
-  const { user, signOut, isAdmin } = useAuth();
-  const { info, projects, skills, experience } = usePortfolio();
-  const [activeTab, setActiveTab]     = useState('content');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [toasts, setToasts]           = useState([]);
+  const { user, signOut, isAdmin }                = useAuth();
+  const { info, projects, skills, experience }    = usePortfolio();
+  const { certificates }                          = useCertificates();
+  const [activeTab, setActiveTab]                 = useState('content');
+  const [sidebarOpen, setSidebarOpen]             = useState(false);
+  const [toasts, setToasts]                       = useState([]);
 
   if (!isAdmin) {
     return (
@@ -78,10 +85,12 @@ export default function AdminDashboard() {
   const removeToast = (id) => setToasts((p) => p.filter((t) => t.id !== id));
 
   const stats = [
-    { label: 'Projects',  value: projects.length },
-    { label: 'Skills',    value: skills.length },
-    { label: 'Timeline',  value: experience.length },
+    { label: 'Projects',      value: projects.length },
+    { label: 'Skills',        value: skills.length },
+    { label: 'Certificates',  value: certificates.length },
+    { label: 'Timeline',      value: experience.length },
   ];
+
   const activeNav = NAV_ITEMS.find((n) => n.id === activeTab);
 
   return (
@@ -99,8 +108,9 @@ export default function AdminDashboard() {
         className={`fixed lg:static inset-y-0 left-0 z-50 flex flex-col w-64 border-r transition-transform duration-300 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
-        style={{ backgroundColor: 'var(--color-bg-secondary)', borderColor: 'var(--color-border)' }}>
-
+        style={{ backgroundColor: 'var(--color-bg-secondary)', borderColor: 'var(--color-border)' }}
+      >
+        {/* Logo */}
         <div className="flex items-center justify-between px-5 h-16 border-b shrink-0"
           style={{ borderColor: 'var(--color-border)' }}>
           <div className="flex items-center gap-3">
@@ -120,6 +130,7 @@ export default function AdminDashboard() {
           </button>
         </div>
 
+        {/* Nav */}
         <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">
           <p className="font-mono text-[10px] text-text-muted tracking-widest uppercase px-2 mb-2">Manage</p>
           {NAV_ITEMS.map(({ id, label, icon: Icon, desc }) => (
@@ -130,19 +141,20 @@ export default function AdminDashboard() {
                 <p className="text-sm font-medium leading-tight">{label}</p>
                 <p className="text-[10px] text-text-muted truncate">{desc}</p>
               </div>
-              {activeTab === id && <ChevronRight size={14} className="shrink-0" style={{ color: 'var(--color-accent)' }} />}
+              {activeTab === id && (
+                <ChevronRight size={14} className="shrink-0" style={{ color: 'var(--color-accent)' }} />
+              )}
             </button>
           ))}
         </nav>
 
-        <div className="px-3 py-4 border-t shrink-0 flex flex-col gap-3"
-          style={{ borderColor: 'var(--color-border)' }}>
-          <div className="grid grid-cols-3 gap-2">
+        {/* Bottom */}
+        <div className="px-3 py-4 border-t shrink-0 flex flex-col gap-3" style={{ borderColor: 'var(--color-border)' }}>
+          <div className="grid grid-cols-2 gap-2">
             {stats.map(({ label, value }) => (
-              <div key={label} className="rounded-xl p-2 text-center"
-                style={{ backgroundColor: 'var(--color-bg-primary)' }}>
+              <div key={label} className="rounded-xl p-2 text-center" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
                 <p className="font-display font-bold text-base" style={{ color: 'var(--color-accent)' }}>{value}</p>
-                <p className="font-mono text-[9px] text-text-muted mt-0.5">{label}</p>
+                <p className="font-mono text-[9px] text-text-muted mt-0.5 leading-tight">{label}</p>
               </div>
             ))}
           </div>
@@ -158,7 +170,7 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      {/* Main content */}
+      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-16 border-b flex items-center px-6 gap-4 shrink-0"
           style={{ backgroundColor: 'var(--color-bg-secondary)', borderColor: 'var(--color-border)' }}>
@@ -181,12 +193,13 @@ export default function AdminDashboard() {
             <motion.div key={activeTab}
               initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.3 }}>
-              {activeTab === 'content'    && <SiteContentEditor addToast={addToast} />}
-              {activeTab === 'appearance' && <AppearanceEditor  addToast={addToast} />}
-              {activeTab === 'profile'    && <ProfileEditor     addToast={addToast} />}
-              {activeTab === 'skills'     && <SkillsEditor      addToast={addToast} />}
-              {activeTab === 'projects'   && <ProjectsEditor    addToast={addToast} />}
-              {activeTab === 'experience' && <ExperienceEditor  addToast={addToast} />}
+              {activeTab === 'content'      && <SiteContentEditor  addToast={addToast} />}
+              {activeTab === 'appearance'   && <AppearanceEditor   addToast={addToast} />}
+              {activeTab === 'profile'      && <ProfileEditor      addToast={addToast} />}
+              {activeTab === 'skills'       && <SkillsEditor       addToast={addToast} />}
+              {activeTab === 'projects'     && <ProjectsEditor     addToast={addToast} />}
+              {activeTab === 'certificates' && <CertificatesEditor addToast={addToast} />}
+              {activeTab === 'experience'   && <ExperienceEditor   addToast={addToast} />}
             </motion.div>
           </AnimatePresence>
         </main>

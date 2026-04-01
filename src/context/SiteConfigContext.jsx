@@ -23,6 +23,12 @@ export const DEFAULT_SITE_CONTENT = {
     { value: '3',   label: 'Awards Won' },
   ],
 
+  // Certificates
+  certificates_eyebrow:  'Credentials',
+  certificates_title1:   'Certified &',
+  certificates_title2:   'recognized',
+  certificates_subtitle: '',
+
   // Projects
   projects_eyebrow:         'Portfolio',
   projects_title1:          'Work that',
