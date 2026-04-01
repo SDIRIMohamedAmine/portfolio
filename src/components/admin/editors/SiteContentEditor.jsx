@@ -129,10 +129,8 @@ const SECTIONS = [
   {
     id: 'certificates', label: 'Certificates Section', emoji: '🏅', desc: 'Badges & credentials',
     fields: [
-      { key: 'certificates_eyebrow',  label: 'Eyebrow label' },
-      { key: 'certificates_title1',   label: 'Title — line 1' },
-      { key: 'certificates_title2',   label: 'Title — line 2 (gradient)' },
-      { key: 'certificates_subtitle', label: 'Subtitle', type: 'textarea' },
+
+      { key: 'title',   label: 'Title — line 2 (gradient)' },
     ],
   },
   {
