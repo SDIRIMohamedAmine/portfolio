@@ -1,21 +1,23 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  User, Code2, FolderOpen, Briefcase, Layout, Palette, Award,
+  User, Code2, FolderOpen, Briefcase, Layout, Palette, Award, BarChart2,
   LogOut, ExternalLink, ChevronRight, Menu, X,
 } from 'lucide-react';
-import { useAuth }            from '../../context/AuthContext';
-import { usePortfolio }       from '../../context/PortfolioContext';
-import { useCertificates }    from '../../context/CertificatesContext';
-import ProfileEditor          from './editors/ProfileEditor';
-import SkillsEditor           from './editors/SkillsEditor';
-import ProjectsEditor         from './editors/ProjectsEditor';
-import ExperienceEditor       from './editors/ExperienceEditor';
-import SiteContentEditor      from './editors/SiteContentEditor';
-import AppearanceEditor       from './editors/AppearanceEditor';
-import CertificatesEditor     from './editors/CertificatesEditor';
+import { useAuth }           from '../../context/AuthContext';
+import { usePortfolio }      from '../../context/PortfolioContext';
+import { useCertificates }   from '../../context/CertificatesContext';
+import ProfileEditor         from './editors/ProfileEditor';
+import SkillsEditor          from './editors/SkillsEditor';
+import ProjectsEditor        from './editors/ProjectsEditor';
+import ExperienceEditor      from './editors/ExperienceEditor';
+import SiteContentEditor     from './editors/SiteContentEditor';
+import AppearanceEditor      from './editors/AppearanceEditor';
+import CertificatesEditor    from './editors/CertificatesEditor';
+import AnalyticsPanel        from './AnalyticsPanel';
 
 const NAV_ITEMS = [
+  { id: 'analytics',    label: 'Analytics',     icon: BarChart2,  desc: 'Visitor stats & traffic' },
   { id: 'content',      label: 'Site Content',  icon: Layout,     desc: 'All text & labels' },
   { id: 'appearance',   label: 'Appearance',    icon: Palette,    desc: 'Colors & theme' },
   { id: 'profile',      label: 'Profile',       icon: User,       desc: 'Bio, photo, socials' },
@@ -52,12 +54,12 @@ function ToastManager({ toasts, removeToast }) {
 }
 
 export default function AdminDashboard() {
-  const { user, signOut, isAdmin }                = useAuth();
-  const { info, projects, skills, experience }    = usePortfolio();
-  const { certificates }                          = useCertificates();
-  const [activeTab, setActiveTab]                 = useState('content');
-  const [sidebarOpen, setSidebarOpen]             = useState(false);
-  const [toasts, setToasts]                       = useState([]);
+  const { user, signOut, isAdmin }             = useAuth();
+  const { info, projects, skills, experience } = usePortfolio();
+  const { certificates }                       = useCertificates();
+  const [activeTab, setActiveTab]              = useState('analytics'); // Open on analytics by default
+  const [sidebarOpen, setSidebarOpen]          = useState(false);
+  const [toasts, setToasts]                    = useState([]);
 
   if (!isAdmin) {
     return (
@@ -84,11 +86,11 @@ export default function AdminDashboard() {
   };
   const removeToast = (id) => setToasts((p) => p.filter((t) => t.id !== id));
 
-  const stats = [
-    { label: 'Projects',      value: projects.length },
-    { label: 'Skills',        value: skills.length },
-    { label: 'Certificates',  value: certificates.length },
-    { label: 'Timeline',      value: experience.length },
+  const sidebarStats = [
+    { label: 'Projects',     value: projects.length },
+    { label: 'Skills',       value: skills.length },
+    { label: 'Certs',        value: certificates.length },
+    { label: 'Timeline',     value: experience.length },
   ];
 
   const activeNav = NAV_ITEMS.find((n) => n.id === activeTab);
@@ -103,7 +105,7 @@ export default function AdminDashboard() {
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
+      {/* ── Sidebar ── */}
       <aside
         className={`fixed lg:static inset-y-0 left-0 z-50 flex flex-col w-64 border-r transition-transform duration-300 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
@@ -132,8 +134,22 @@ export default function AdminDashboard() {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">
-          <p className="font-mono text-[10px] text-text-muted tracking-widest uppercase px-2 mb-2">Manage</p>
-          {NAV_ITEMS.map(({ id, label, icon: Icon, desc }) => (
+          {/* Analytics group */}
+          <p className="font-mono text-[10px] text-text-muted tracking-widest uppercase px-2 mb-1">Overview</p>
+          <button
+            onClick={() => { setActiveTab('analytics'); setSidebarOpen(false); }}
+            className={`admin-nav-item w-full text-left ${activeTab === 'analytics' ? 'active' : ''}`}
+          >
+            <BarChart2 size={17} className="shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium leading-tight">Analytics</p>
+              <p className="text-[10px] text-text-muted">Visitor stats & traffic</p>
+            </div>
+            {activeTab === 'analytics' && <ChevronRight size={14} className="shrink-0" style={{ color: 'var(--color-accent)' }} />}
+          </button>
+
+          <p className="font-mono text-[10px] text-text-muted tracking-widest uppercase px-2 mb-1 mt-3">Content</p>
+          {NAV_ITEMS.filter(n => n.id !== 'analytics').map(({ id, label, icon: Icon, desc }) => (
             <button key={id} onClick={() => { setActiveTab(id); setSidebarOpen(false); }}
               className={`admin-nav-item w-full text-left ${activeTab === id ? 'active' : ''}`}>
               <Icon size={17} className="shrink-0" />
@@ -141,9 +157,7 @@ export default function AdminDashboard() {
                 <p className="text-sm font-medium leading-tight">{label}</p>
                 <p className="text-[10px] text-text-muted truncate">{desc}</p>
               </div>
-              {activeTab === id && (
-                <ChevronRight size={14} className="shrink-0" style={{ color: 'var(--color-accent)' }} />
-              )}
+              {activeTab === id && <ChevronRight size={14} className="shrink-0" style={{ color: 'var(--color-accent)' }} />}
             </button>
           ))}
         </nav>
@@ -151,7 +165,7 @@ export default function AdminDashboard() {
         {/* Bottom */}
         <div className="px-3 py-4 border-t shrink-0 flex flex-col gap-3" style={{ borderColor: 'var(--color-border)' }}>
           <div className="grid grid-cols-2 gap-2">
-            {stats.map(({ label, value }) => (
+            {sidebarStats.map(({ label, value }) => (
               <div key={label} className="rounded-xl p-2 text-center" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
                 <p className="font-display font-bold text-base" style={{ color: 'var(--color-accent)' }}>{value}</p>
                 <p className="font-mono text-[9px] text-text-muted mt-0.5 leading-tight">{label}</p>
@@ -159,18 +173,16 @@ export default function AdminDashboard() {
             ))}
           </div>
           <a href="/" target="_blank" rel="noopener noreferrer" className="admin-nav-item">
-            <ExternalLink size={17} className="shrink-0" />
-            <span>View Site</span>
+            <ExternalLink size={17} className="shrink-0" /><span>View Site</span>
           </a>
           <button onClick={signOut} className="admin-nav-item w-full text-red-400 hover:bg-red-500/10">
-            <LogOut size={17} className="shrink-0" />
-            <span>Sign Out</span>
+            <LogOut size={17} className="shrink-0" /><span>Sign Out</span>
           </button>
           <p className="font-mono text-[10px] text-text-muted px-2 truncate">{user?.email}</p>
         </div>
       </aside>
 
-      {/* Main */}
+      {/* ── Main ── */}
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-16 border-b flex items-center px-6 gap-4 shrink-0"
           style={{ backgroundColor: 'var(--color-bg-secondary)', borderColor: 'var(--color-border)' }}>
@@ -193,6 +205,7 @@ export default function AdminDashboard() {
             <motion.div key={activeTab}
               initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.3 }}>
+              {activeTab === 'analytics'    && <AnalyticsPanel />}
               {activeTab === 'content'      && <SiteContentEditor  addToast={addToast} />}
               {activeTab === 'appearance'   && <AppearanceEditor   addToast={addToast} />}
               {activeTab === 'profile'      && <ProfileEditor      addToast={addToast} />}

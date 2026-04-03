@@ -11,6 +11,7 @@ import Footer        from '../components/Footer';
 import { SectionDivider } from '../components/ui/SectionReveal';
 import { useActiveSection } from '../hooks/useActiveSection';
 import { usePortfolio } from '../context/PortfolioContext';
+import { usePageTracking } from '../hooks/usePageTracking';
 
 const SECTIONS = ['hero', 'about', 'projects', 'certificates', 'experience', 'contact'];
 
@@ -89,6 +90,7 @@ function Loader() {
 export default function PortfolioPage() {
   const activeSection = useActiveSection(SECTIONS);
   const { loading: dataLoading } = usePortfolio();
+  usePageTracking(); // 🔍 anonymous visit tracking
   const [minTimeDone, setMinTimeDone] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setMinTimeDone(true), 600);
